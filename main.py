@@ -1,3 +1,4 @@
+import m2cgen
 import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.tree import DecisionTreeClassifier
@@ -14,9 +15,6 @@ from sklearn.metrics import (
 from sklearn.model_selection import cross_val_score, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from imblearn import over_sampling
-from sklearn2pmml.pipeline import PMMLPipeline
-from sklearn2pmml import sklearn2pmml
-
 
 data = pd.read_csv("data/data.csv")
 
@@ -30,14 +28,12 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 model = DecisionTreeClassifier(max_depth=None, max_features="sqrt", min_samples_leaf=1, min_samples_split=2)
 
-pipeline = PMMLPipeline([
-    ("classifier", model)
-])
-pipeline.fit(X_train, y_train)
-print(pipeline.score(X_test, y_test))
-sklearn2pmml(pipeline, "DecisionTreeModel.pmml", with_repr = True)
+model.fit(X_train, y_train)
+print(model.score(X_test, y_test))
 
-
+code = m2cgen.export_to_go(model)
+with open("generated_model.go", "w", encoding="utf8") as f:
+    f.write(code)
 # param_grid = {
 #     'max_depth': [3, 5, 7, None],
 #     'min_samples_split': [2, 5, 10],
