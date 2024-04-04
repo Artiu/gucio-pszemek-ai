@@ -26,7 +26,7 @@ X, y = smote.fit_resample(X, y)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-model = DecisionTreeClassifier(max_depth=None, max_features="sqrt", min_samples_leaf=1, min_samples_split=2)
+model = RandomForestClassifier()
 
 model.fit(X_train, y_train)
 print(model.score(X_test, y_test))
