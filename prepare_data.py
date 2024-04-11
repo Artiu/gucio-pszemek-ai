@@ -31,10 +31,26 @@ with open("data/predictions.csv", 'r', encoding="utf8") as f:
         predicted_date = prediction_date + datetime.timedelta(days=weekdays_difference)
         day_of_month = predicted_date.date().day
         month = predicted_date.date().month
-        was_live = predicted_date.strftime("%Y-%m-%d") in streams
-        data.append([day_of_month, month, weekday, 1 if was_live else 0])
+        stream_date = predicted_date.strftime("%Y-%m-%d")
+        was_live = stream_date in streams
+        data.append([predicted_date.year, day_of_month, month, weekday, 1, 1 if was_live else 0])
+
+last_date = None
+filled_data = []
+for row in data:
+    if last_date is None:
+        last_date = datetime.date(row[0], row[2], row[1])
+        filled_data.append(row[1:])
+        continue
+    iter_date = last_date + datetime.timedelta(days=1)
+    last_date = datetime.date(row[0], row[2], row[1])
+    while iter_date < last_date:
+        filled_data.append([iter_date.day, iter_date.month, iter_date.weekday(), 0, 0])
+        iter_date += datetime.timedelta(days=1)
+    filled_data.append(row[1:])
+
 
 with open("data/data.csv", 'w', encoding="utf8", newline='') as f:
     w = csv.writer(f)
-    w.writerow(["day", "month", "weekday", "was_live"])
-    w.writerows(data)
+    w.writerow(["day", "month", "weekday", "was_planned", "was_live"])
+    w.writerows(filled_data)
